@@ -1,0 +1,135 @@
+---
+title: "Frequently asked questions about AQBot"
+description: "Answers to common questions about AQBot's licensing, supported AI providers, data storage, agent mode, knowledge base, and API gateway."
+---
+
+This page answers the most common questions about AQBot — from licensing and supported providers to how your data is stored and what you can do with the built-in API Gateway. If you have a question that is not covered here, open an issue on [GitHub](https://github.com/AQBot-Desktop/AQBot/issues).
+
+## General
+
+<AccordionGroup>
+  <Accordion title="Is AQBot free to use?">
+    Yes. AQBot is open source and licensed under [AGPL-3.0](https://github.com/AQBot-Desktop/AQBot/blob/main/LICENSE). You can download and use it at no cost. AQBot does not charge subscription fees or usage fees of its own.
+
+    You do need to bring your own API keys for whichever AI providers you want to use. Those providers bill you directly based on your usage.
+  </Accordion>
+
+  <Accordion title="Which AI providers are supported?">
+    AQBot supports the following providers out of the box:
+
+    - **OpenAI** (GPT models, o-series reasoning models)
+    - **Anthropic Claude**
+    - **Google Gemini**
+    - **Any OpenAI-compatible API** — including self-hosted models, local inference servers, and third-party proxies that expose an OpenAI-compatible endpoint
+
+    You can configure providers and their API keys in **Settings → Providers**.
+  </Accordion>
+
+  <Accordion title="Where is my data stored?">
+    All AQBot data is stored locally on your machine. No data is uploaded to any AQBot server.
+
+    | Data type | Location |
+    |-----------|----------|
+    | Application state, database, API keys, vector index | `~/.aqbot/` |
+    | Images, uploaded documents, backups | `~/Documents/aqbot/` |
+
+    On Windows, replace `~` with `%USERPROFILE%`. Both directories are created automatically on first launch.
+
+    API keys are encrypted at rest using AES-256. The master key is stored with `0600` file permissions on Unix systems.
+  </Accordion>
+
+  <Accordion title="Does AQBot send my conversations to any server?">
+    No. AQBot makes direct API calls from your machine to the AI provider you have configured. Your conversations are never routed through any AQBot-operated server.
+
+    The only network traffic AQBot generates is:
+    - Requests to your chosen AI provider's API
+    - Web search requests, if you have a search integration enabled
+    - Auto-update checks to GitHub Releases on startup
+  </Accordion>
+</AccordionGroup>
+
+## Features
+
+<AccordionGroup>
+  <Accordion title="What is Agent mode?">
+    **Agent mode** lets the AI autonomously execute multi-step tasks on your behalf — reading and writing files, running shell commands, analyzing code, and more. You set a working directory that acts as a sandbox; all agent file operations are confined to that directory.
+
+    You control how much autonomy the agent has through three permission levels:
+    - **Default** — file writes require your approval
+    - **Accept Edits** — file changes are auto-approved
+    - **Full Access** — all tool calls proceed without prompts
+
+    For full details, see the [Agent mode](/features/ai-agent) page.
+  </Accordion>
+
+  <Accordion title="What file formats can I upload to the Knowledge Base?">
+    The **Knowledge Base** accepts documents for retrieval-augmented generation (RAG). After you upload a file, AQBot automatically parses it, splits it into chunks, and builds a vector index so the AI can retrieve relevant passages during your conversations.
+
+    Supported formats include common document types such as PDF, plain text, and Markdown. You can manage multiple separate knowledge bases and attach them selectively to conversations.
+  </Accordion>
+
+  <Accordion title="Can I use AQBot without an internet connection?">
+    It depends on the AI provider you are using:
+
+    - **Local models** (via a local inference server with an OpenAI-compatible API) — yes, fully offline once configured.
+    - **Cloud providers** (OpenAI, Anthropic, Google) — no, AQBot must be able to reach the provider's API endpoint.
+
+    Features like web search also require internet access. The app itself, your conversation history, and your knowledge bases all work offline.
+  </Accordion>
+
+  <Accordion title="How do I export my conversations?">
+    Open the conversation you want to export, then go to **Settings → Export**. AQBot supports the following export formats:
+
+    - **PNG** — a screenshot of the conversation
+    - **Markdown** — formatted text with code blocks preserved
+    - **Plain text** — unformatted text
+    - **JSON** — structured data including message metadata
+  </Accordion>
+</AccordionGroup>
+
+## API Gateway
+
+<AccordionGroup>
+  <Accordion title="What is the API Gateway used for?">
+    The built-in **API Gateway** runs a local API server on your machine. Any tool or client that supports OpenAI-compatible APIs can point to this gateway and use it as a backend — routing requests through AQBot to whichever AI provider you have configured.
+
+    This lets you use AQBot's provider configuration, API key rotation, and usage analytics with external tools like CLI clients or local scripts, without sharing your API keys directly with those tools.
+  </Accordion>
+
+  <Accordion title="Which protocols does the gateway support?">
+    The gateway supports three native protocol formats:
+
+    - **OpenAI** (OpenAI-compatible REST API)
+    - **Claude** (Anthropic native API format)
+    - **Gemini** (Google Gemini native API format)
+
+    You can find ready-to-use configuration templates for popular CLI tools — including Claude CLI, Codex, OpenCode, and Gemini CLI — in the **API Gateway** settings.
+  </Accordion>
+
+  <Accordion title="Can other devices on my network use the gateway?">
+    By default, the gateway listens on `localhost` only, so it is not accessible from other devices. To allow network access:
+
+    1. Update the gateway's bind address to `0.0.0.0` (or your machine's local IP) in **Gateway → Settings**.
+    2. Open the gateway's port in your system firewall.
+
+    <Warning>
+      Exposing the gateway on your local network allows any device on that network to send requests through your AI provider accounts. Use API key restrictions in the gateway's key management settings to limit access.
+    </Warning>
+  </Accordion>
+</AccordionGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="How do I update AQBot?">
+    AQBot checks for updates automatically each time it starts. When a new version is available, you will see a prompt to download and install it.
+
+    You can also update manually by downloading the latest installer from the [GitHub Releases](https://github.com/AQBot-Desktop/AQBot/releases) page and running it over your existing installation.
+  </Accordion>
+
+  <Accordion title="Where do I report bugs or request features?">
+    Open an issue on the [GitHub Issues](https://github.com/AQBot-Desktop/AQBot/issues) tracker. Before filing, search existing issues to avoid duplicates.
+
+    For installation and runtime problems, also check the [Troubleshooting](/troubleshooting) page for known fixes.
+  </Accordion>
+</AccordionGroup>

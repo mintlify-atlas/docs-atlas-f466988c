@@ -1,0 +1,116 @@
+---
+title: "Configuring AI providers and API keys in AQBot"
+description: "Add OpenAI, Anthropic Claude, Google Gemini, or any OpenAI-compatible provider, manage API keys, and tune model parameters in AQBot."
+---
+
+AQBot connects to AI models through providers — named configurations that pair an API endpoint with one or more API keys and a set of model parameters. You can add as many providers as you need, switch between them at any time, and fine-tune how each model behaves. All keys are encrypted with AES-256 before being written to disk.
+
+## Adding a provider
+
+<Steps>
+  <Step title="Open provider settings">
+    Click the **Settings** icon in the sidebar, then select **Providers** from the left panel.
+  </Step>
+  <Step title="Choose a provider type">
+    Click **Add Provider** and select the provider type that matches your API: **OpenAI**, **Anthropic Claude**, **Google Gemini**, or **Custom (OpenAI-compatible)**.
+  </Step>
+  <Step title="Enter a display name">
+    Give the provider a recognizable name — for example, `OpenAI (Personal)` or `My Local LLM`. This name appears in the model selector throughout the app.
+  </Step>
+  <Step title="Add an API key">
+    Paste your API key in the **API Key** field and click **Add**. You can add more keys later to enable multi-key rotation.
+  </Step>
+  <Step title="Fetch models">
+    Click **Fetch Models** to pull the current model list directly from the provider's API. AQBot uses your API key to query the models endpoint and populates the list automatically.
+  </Step>
+  <Step title="Save">
+    Click **Save**. The provider is now active and available in the model selector.
+  </Step>
+</Steps>
+
+## Provider-specific setup
+
+<Tabs>
+  <Tab title="OpenAI">
+    OpenAI is pre-configured with the standard base URL (`https://api.openai.com/v1`). You only need to supply an API key.
+
+    1. Go to **Settings → Providers → Add Provider** and select **OpenAI**.
+    2. Paste your key from [platform.openai.com/api-keys](https://platform.openai.com/api-keys).
+    3. Click **Fetch Models** to load the available model list (e.g. `gpt-4o`, `gpt-4.1`, `o3`).
+    4. Enable the models you want to use and click **Save**.
+
+    If you use the **OpenAI Responses API** (which uses `/v1/responses` instead of `/v1/chat/completions`), select **OpenAI Responses** as the provider type instead. All other steps are identical.
+  </Tab>
+  <Tab title="Anthropic Claude">
+    The Anthropic adapter targets `https://api.anthropic.com/v1` and uses the Messages API.
+
+    1. Go to **Settings → Providers → Add Provider** and select **Anthropic Claude**.
+    2. Paste your key from [console.anthropic.com/settings/keys](https://console.anthropic.com/settings/keys).
+    3. Click **Fetch Models** to load the available model list (e.g. `claude-opus-4-5`, `claude-sonnet-4-5`).
+    4. Enable the models you want to use and click **Save**.
+
+    AQBot automatically handles Anthropic-specific request headers (`anthropic-version`, `anthropic-beta`) and thinking block rendering.
+  </Tab>
+  <Tab title="Google Gemini">
+    The Gemini adapter targets `https://generativelanguage.googleapis.com/v1beta`, which is Gemini's stable base path.
+
+    1. Go to **Settings → Providers → Add Provider** and select **Google Gemini**.
+    2. Paste your key from [aistudio.google.com/apikey](https://aistudio.google.com/apikey).
+    3. Click **Fetch Models** to load available models (e.g. `gemini-2.5-pro`, `gemini-2.5-flash`).
+    4. Enable the models you want to use and click **Save**.
+  </Tab>
+  <Tab title="Custom provider">
+    Use the **Custom** type for any OpenAI-compatible API — local models (Ollama, LM Studio), third-party proxies, or other hosted services.
+
+    1. Go to **Settings → Providers → Add Provider** and select **Custom (OpenAI-compatible)**.
+    2. Enter the **Base URL** for the API. AQBot automatically appends `/v1` if no version path is detected. To override this behavior and use the URL exactly as entered, append `!` to the URL (e.g. `http://localhost:11434/api!`).
+    3. Optionally set a custom **API Path** to override the default `/chat/completions` endpoint.
+    4. Add your API key. For local models that require no authentication, enter any non-empty string (e.g. `local`).
+    5. Click **Fetch Models** or manually add model IDs if the endpoint does not support model listing.
+    6. Click **Save**.
+
+    **Custom headers** — if the service requires additional HTTP headers (e.g. `X-Org-ID`), add them in the **Custom Headers** field as a JSON object:
+
+    ```json
+    {
+      "X-Org-ID": "your-org-id",
+      "X-Custom-Header": "value"
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Model parameters
+
+You can override the default generation parameters per model. Select a provider, click a model name, then adjust any of the following:
+
+| Parameter | Description |
+|---|---|
+| **Temperature** | Controls randomness. Lower values (e.g. `0.2`) produce more focused outputs; higher values (e.g. `1.0`) produce more varied outputs. |
+| **Max tokens** | Maximum number of tokens to generate in a single response. |
+| **Top-p** | Nucleus sampling threshold. Tokens are sampled from the smallest set whose cumulative probability exceeds this value. |
+| **Frequency penalty** | Penalizes tokens that have already appeared in the output, reducing repetition. |
+| **Context count** | Number of previous messages included in the context window for each request. |
+
+Changes apply only to that model within this provider. Your global defaults (set in **Settings → Chat**) are used for any model that has no per-model overrides.
+
+## Multi-key rotation
+
+<Tip>
+  Add multiple API keys per provider to distribute requests across keys automatically. This is the most effective way to stay within per-key rate limits when generating large volumes of output.
+</Tip>
+
+AQBot supports an arbitrary number of API keys per provider. When a request is made, AQBot cycles through enabled keys in round-robin order, so rate limit pressure is spread evenly across all keys you have added.
+
+To add a key:
+
+1. Open the provider in **Settings → Providers**.
+2. Click **Add Key** in the **API Keys** section.
+3. Paste the new key and click **Add**.
+4. Repeat for as many keys as you want.
+
+Each key shows a prefix (the first eight characters) so you can identify it without revealing the full value. You can disable individual keys without deleting them, which is useful when a key is temporarily suspended.
+
+<Note>
+  All API keys are encrypted with AES-256 using a 32-byte master key stored in `~/.aqbot/master.key` (mode `0600` on Unix). Keys are never written to disk in plaintext.
+</Note>

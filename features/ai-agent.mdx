@@ -1,0 +1,79 @@
+---
+title: "AI Agent mode: autonomous task execution in AQBot"
+description: "Run multi-step autonomous tasks with file read/write, command execution, and a three-tier permission model that keeps you in control."
+---
+
+**Agent mode** turns AQBot into an autonomous coding and task-execution assistant. Instead of a single-turn question-and-answer exchange, the agent plans and executes multi-step workflows on your behalf: reading and writing files, running shell commands, searching code, and more. A layered permission system ensures you always know what the agent is doing and can approve, deny, or limit its actions before they take effect.
+
+## Enabling Agent mode
+
+<Steps>
+  <Step title="Open or create a conversation">
+    In the left sidebar, select an existing conversation or create a new one by clicking the compose icon.
+  </Step>
+  <Step title="Switch to Agent mode">
+    In the chat header, click the mode selector (it shows **Chat** by default) and choose **Agent**. AQBot creates an agent session for this conversation and persists it across restarts.
+  </Step>
+  <Step title="Set a working directory">
+    In the agent panel that appears below the header, click **Set working directory** and choose the folder you want the agent to operate in. The agent is sandboxed to this directory — it cannot read or write paths outside it (unless you choose **Full Access** mode).
+  </Step>
+  <Step title="Choose a permission level">
+    Select the permission level that matches how much you trust the current task (see the table below), then send your first message.
+  </Step>
+</Steps>
+
+## Permission levels
+
+The permission system is enforced in the Rust backend (`src-tauri/crates/agent/src/permission.rs`) using a decision matrix that maps the current mode against the risk level of each tool call.
+
+| Mode | Read-only tools | Write tools | Execute tools |
+|---|---|---|---|
+| **Default** | Auto-allow | Require approval | Require approval |
+| **Accept Edits** | Auto-allow | Auto-allow | Require approval |
+| **Full Access** | Auto-allow | Auto-allow | Auto-allow |
+
+**Tool risk classification:**
+- **Read-only** — tools that only inspect files or data (e.g., `read_file`, `list_dir`, `search`)
+- **Write** — tools that create, modify, or delete files (e.g., `write_file`, `edit_file`, `delete_file`, `patch`)
+- **Execute** — tools that run arbitrary commands (e.g., `bash`, `shell`, `run_command`)
+
+### Default
+
+The safest mode. Read operations are approved automatically; any write or execute operation opens the **Tool Approval Panel** where you review the tool name, inputs, and risk level before deciding.
+
+### Accept Edits
+
+File reads and writes are approved automatically. Shell and command-execution tools still require your explicit approval. Use this mode when you trust the agent to edit source files but want to review any commands it wants to run.
+
+### Full Access
+
+All tool calls are approved automatically with no prompts. The working directory sandbox still applies unless explicitly disabled.
+
+<Warning>
+  **Full Access** mode removes all interactive approval prompts. The agent will read files, write files, and execute shell commands without asking you first. Only use this mode in a controlled environment (for example, inside a dedicated container or virtual machine) with a working directory that contains only files you are comfortable with the agent modifying. Mistakes — such as deleting or overwriting important files — cannot be undone automatically.
+</Warning>
+
+## Working directory sandbox
+
+When you set a working directory, the Rust backend enforces path safety checks on every file-access tool call. Any path that resolves outside the configured directory is denied before the tool even runs, regardless of the permission mode. This prevents prompt-injection attacks or runaway agents from escaping the intended scope.
+
+## Tool Approval Panel
+
+When the agent needs approval for a tool call, AQBot pauses execution and shows the **Tool Approval Panel** in the chat view. The panel displays:
+
+- The tool name and risk level (read-only / write / execute)
+- The exact input the agent wants to pass (file path, command string, etc.)
+- Three action buttons: **Allow once**, **Always allow for this session**, and **Deny**
+
+Choosing **Always allow** adds the tool to a per-conversation allowlist stored in memory, so subsequent calls to the same tool are approved automatically for the rest of the session without further prompts.
+
+## Cost tracking
+
+After each agent task completes, AQBot shows a cost summary below the final assistant message. The summary includes:
+
+- **Input tokens** consumed across all turns
+- **Output tokens** generated
+- **Total cost in USD** (calculated from the provider's pricing)
+- **Number of turns** (how many LLM calls the agent made)
+
+This data is persisted with the agent session so you can review the cost of past tasks.

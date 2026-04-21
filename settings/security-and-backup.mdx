@@ -1,0 +1,119 @@
+---
+title: "Data security, encryption, and backup in AQBot"
+description: "How AQBot protects your data with AES-256 encryption, the two-directory storage layout, and how to configure automatic or manual backups to local or WebDAV."
+---
+
+AQBot is designed around a local-first security model: your conversations, API keys, and settings never leave your machine unless you explicitly configure a remote backup target. Sensitive data is encrypted at rest with AES-256, and the two-directory layout keeps application internals cleanly separated from your user-visible files.
+
+## Encryption
+
+AQBot encrypts every API key and other sensitive value before writing it to the database. Encryption uses AES-256 with a 32-byte master key. The master key itself is stored in `~/.aqbot/master.key` with `0600` file permissions on Unix (owner read/write only), so other users on the same machine cannot read it.
+
+When you add or update an API key in **Settings → Providers**, AQBot encrypts it immediately in the Rust backend before persisting it. The plaintext key is never written to disk.
+
+## Data directory layout
+
+AQBot uses two root directories with distinct responsibilities. Both are created automatically on first launch.
+
+```text
+~/.aqbot/                        # Application state (hidden, not user-visible)
+├── aqbot.db                     # SQLite database: all settings, conversations, keys
+├── master.key                   # 32-byte AES-256 master encryption key (mode 0600)
+├── vector_db/                   # sqlite-vec vector store for knowledge-base embeddings
+└── ssl/                         # Self-signed TLS certificate and key for the API gateway
+    ├── cert.pem
+    └── key.pem                  # mode 0600 on Unix
+
+~/Documents/aqbot/               # User-visible files
+├── images/                      # Image attachments (uploads, avatars, AI-generated)
+├── files/                       # Non-image file attachments (documents, code, archives)
+└── backups/                     # Default location for auto- and manual backups
+```
+
+On Windows, `~/.aqbot/` resolves to `%USERPROFILE%\.aqbot\` and `~/Documents/aqbot/` resolves to `%USERPROFILE%\Documents\aqbot\`.
+
+<Note>
+  The `aqbot.db` database and `master.key` are always migrated as a matched pair. If you move or restore a database, copy both files together to avoid decryption errors.
+</Note>
+
+## Automatic backup
+
+The auto-backup scheduler creates periodic SQLite snapshots of `aqbot.db` and saves them to your configured backup directory. If the app was offline during a scheduled window, it catches up and runs the backup immediately on the next launch.
+
+<Steps>
+  <Step title="Open backup settings">
+    Go to **Settings → Backup**.
+  </Step>
+  <Step title="Enable auto backup">
+    Toggle **Enable auto backup** on.
+  </Step>
+  <Step title="Set the interval">
+    Choose how often AQBot should create a backup. The interval is specified in hours (e.g. `6` for every six hours, `24` for daily).
+  </Step>
+  <Step title="Set the retention count">
+    Set **Max backups** to control how many historical snapshots to keep. Older backups are deleted automatically once the limit is reached.
+  </Step>
+  <Step title="Choose a backup destination">
+    Select either **Local directory** or **WebDAV** as the backup target (see the tabs below), then configure the destination.
+  </Step>
+  <Step title="Save">
+    Click **Save**. The scheduler starts immediately and the next backup runs after the configured interval (or sooner if a backup is overdue).
+  </Step>
+</Steps>
+
+<Tabs>
+  <Tab title="Local backup">
+    By default, backups are saved to `~/Documents/aqbot/backups/`. To use a different location:
+
+    1. In **Settings → Backup → Backup Directory**, click the folder icon.
+    2. Select any directory on your local filesystem.
+    3. Click **Save**.
+
+    AQBot resolves the path at runtime, so you can point it at an external drive or a folder synced by a third-party tool (Dropbox, iCloud Drive, etc.) for an additional off-site copy.
+  </Tab>
+  <Tab title="WebDAV backup">
+    AQBot can push backups directly to a WebDAV server — a Nextcloud instance, a NAS, or any standard WebDAV host.
+
+    1. In **Settings → Backup**, expand **WebDAV sync**.
+    2. Enter the **Host URL** (e.g. `https://nextcloud.example.com/remote.php/dav/files/username/aqbot/`).
+    3. Enter your WebDAV **Username** and **Password**.
+    4. Set **Remote path** to the directory on the server where backups should be stored.
+    5. Toggle **Enable WebDAV sync** on.
+    6. Optionally set **Max remote backups** to limit how many snapshots are kept on the server (default: 10).
+    7. Toggle **Include documents** if you also want to sync the `~/Documents/aqbot/` file attachments.
+    8. Click **Save**.
+
+    If your WebDAV server uses a self-signed certificate, enable **Accept invalid certificates** — otherwise, TLS verification will reject the connection.
+  </Tab>
+</Tabs>
+
+## Manual backup
+
+To create a backup immediately without waiting for the scheduler:
+
+1. Go to **Settings → Backup**.
+2. Click **Back up now**.
+
+The backup file appears in the backup list with a timestamp. Manual backups follow the same retention rules as automatic ones.
+
+## Restoring a backup
+
+1. Go to **Settings → Backup**.
+2. Find the snapshot you want to restore in the **Backup history** list.
+3. Click the **Restore** button next to it.
+4. Confirm the restore. AQBot will replace the current database with the selected snapshot and restart automatically to load the restored data.
+
+<Warning>
+  Restoring a backup replaces your entire current database, including all conversations, settings, and provider configurations captured in that snapshot. Any changes made after the backup was created will be lost. Export important conversations before restoring if needed.
+</Warning>
+
+## Conversation export
+
+You can export individual conversations without performing a full backup. Open any conversation, click the **Export** button (or right-click the conversation in the sidebar), and choose a format:
+
+| Format | Best for |
+|---|---|
+| **PNG** | Sharing a visual screenshot of the conversation |
+| **Markdown** | Archiving or editing conversation content in any text editor |
+| **Plain text** | Simple, portable plain-text archive |
+| **JSON** | Programmatic processing or re-importing into another tool |

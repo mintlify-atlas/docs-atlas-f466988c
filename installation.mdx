@@ -1,0 +1,124 @@
+---
+title: "Installing AQBot on macOS, Windows, and Linux"
+description: "Download and install AQBot on your platform. Covers macOS quarantine fixes, Windows SmartScreen, and Linux package formats for x86_64 and arm64."
+---
+
+AQBot is a cross-platform desktop application built with Tauri. It runs natively on macOS (Apple Silicon and Intel), Windows 10 and 11 (x86\_64 and arm64), and Linux (x86\_64 and arm64). Download the installer for your platform from the [AQBot Releases page](https://github.com/AQBot-Desktop/AQBot/releases), then follow the instructions below for your operating system.
+
+## Platform support
+
+| Platform | Architectures |
+|---|---|
+| macOS | Apple Silicon (arm64), Intel (x86\_64) |
+| Windows 10/11 | x86\_64, arm64 |
+| Linux | x86\_64 (AppImage/deb/rpm), arm64 (AppImage/deb/rpm) |
+
+## Installation instructions
+
+<Tabs>
+  <Tab title="macOS">
+    AQBot runs on both Apple Silicon (M-series) and Intel Macs. Download the `.dmg` file that matches your architecture from the [Releases page](https://github.com/AQBot-Desktop/AQBot/releases).
+
+    1. Open the downloaded `.dmg` file.
+    2. Drag **AQBot.app** into your **Applications** folder.
+    3. Eject the disk image.
+    4. Open AQBot from **Applications** or **Spotlight**.
+
+    ### "App is damaged" or "Cannot verify developer"
+
+    Because AQBot is not signed with an Apple Developer certificate, macOS Gatekeeper may block the first launch with one of these messages:
+
+    - *"AQBot" is damaged and can't be opened. You should move it to the Trash.*
+    - *"AQBot" can't be opened because Apple cannot check it for malicious software.*
+
+    Run the following two commands to resolve this:
+
+    **Step 1 — Allow apps from "Anywhere":**
+
+    ```bash
+    sudo spctl --master-disable
+    ```
+
+    Then open **System Settings → Privacy & Security → Security** and select **Anywhere**.
+
+    **Step 2 — Remove the quarantine attribute:**
+
+    ```bash
+    sudo xattr -dr com.apple.quarantine /Applications/AQBot.app
+    ```
+
+    <Tip>
+      You can drag the AQBot icon from Finder onto the Terminal window after typing `sudo xattr -dr com.apple.quarantine ` to fill in the path automatically.
+    </Tip>
+
+    **Step 3 — macOS Ventura and later only:**
+
+    After completing the steps above, the first launch may still be blocked. Open **System Settings → Privacy & Security**, scroll to the **Security** section, and click **Open Anyway**. You only need to do this once.
+
+    <Warning>
+      Running `sudo spctl --master-disable` reduces macOS's default app verification for all applications, not just AQBot. You can re-enable it with `sudo spctl --master-enable` after launching AQBot for the first time.
+    </Warning>
+  </Tab>
+
+  <Tab title="Windows">
+    AQBot supports Windows 10 and Windows 11 on both x86\_64 and arm64 processors. Download the `.exe` installer from the [Releases page](https://github.com/AQBot-Desktop/AQBot/releases).
+
+    1. Run the downloaded `.exe` installer.
+    2. If Windows SmartScreen appears with a "Windows protected your PC" prompt, click **More info**, then **Run anyway**. This prompt appears because AQBot does not yet carry an Extended Validation (EV) code-signing certificate.
+    3. Follow the installer steps and click **Install**.
+    4. Launch AQBot from the **Start menu** or the desktop shortcut.
+
+    <Note>
+      AQBot embeds a WebView2 bootstrapper in the installer. If WebView2 is not already present on your system, the installer downloads and configures it silently.
+    </Note>
+
+    ### Uninstalling
+
+    Open **Settings → Apps → Installed apps**, search for **AQBot**, and click **Uninstall**. User data in `%USERPROFILE%\.aqbot\` and `%USERPROFILE%\Documents\aqbot\` is not removed automatically; delete those folders manually if you want a clean uninstall.
+  </Tab>
+
+  <Tab title="Linux">
+    AQBot provides packages for x86\_64 and arm64 in three formats: AppImage, `.deb` (Debian/Ubuntu), and `.rpm` (Fedora/openSUSE). Download the format that suits your distribution from the [Releases page](https://github.com/AQBot-Desktop/AQBot/releases).
+
+    **AppImage (any distribution):**
+
+    ```bash
+    chmod +x AQBot_*.AppImage
+    ./AQBot_*.AppImage
+    ```
+
+    **Debian/Ubuntu (.deb):**
+
+    ```bash
+    sudo dpkg -i AQBot_*.deb
+    ```
+
+    **Fedora/openSUSE (.rpm):**
+
+    ```bash
+    sudo rpm -i AQBot_*.rpm
+    ```
+
+    After installation, launch AQBot from your application launcher or by running `aqbot` in a terminal.
+
+    <Note>
+      AppImage files are self-contained and do not require installation. You can place the file anywhere and run it directly. If the AppImage does not launch, install `libfuse2` with your package manager (`sudo apt install libfuse2` on Ubuntu 22.04+).
+    </Note>
+
+    ### Uninstalling
+
+    - **AppImage** — Delete the `.AppImage` file.
+    - **.deb** — Run `sudo dpkg -r aqbot`.
+    - **.rpm** — Run `sudo rpm -e aqbot`.
+
+    User data in `~/.aqbot/` is not removed automatically.
+  </Tab>
+</Tabs>
+
+## After installation
+
+Once AQBot is running, add your first AI provider to start chatting. See the [Quickstart](/quickstart) guide for a step-by-step walkthrough.
+
+## License
+
+AQBot is open source under the [AGPL-3.0](https://github.com/AQBot-Desktop/AQBot/blob/main/LICENSE) license.

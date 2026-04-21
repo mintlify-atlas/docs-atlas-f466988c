@@ -1,80 +1,87 @@
 ---
-title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+title: "Get started with AQBot"
+description: "Install AQBot, add your first AI provider (OpenAI, Claude, or Gemini), and send your first AI message in five steps on macOS, Windows, or Linux."
 ---
 
-## Get started in three steps
+This guide walks you through installing AQBot, connecting it to an AI provider, and sending your first message. The whole process takes under five minutes.
 
-Get your documentation site running locally and make your first customization.
+<Steps>
+  <Step title="Download and install AQBot">
+    Go to the [AQBot Releases page](https://github.com/AQBot-Desktop/AQBot/releases) and download the installer for your platform:
 
-### Step 1: Set up your local environment
+    - **macOS**: Download the `.dmg` file for Apple Silicon (`arm64`) or Intel (`x86_64`)
+    - **Windows 10/11**: Download the `.msi` or `.exe` installer for your architecture
+    - **Linux**: Download the `.AppImage`, `.deb`, or `.rpm` package
 
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
-    
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
-    
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
+    Run the installer and follow the on-screen instructions.
 
-### Step 2: Deploy your changes
+    <Note>
+      On macOS, you may see a security warning because AQBot is not signed by Apple. See the [installation guide](/installation) for the exact commands to bypass this.
+    </Note>
+  </Step>
 
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
-    
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
+  <Step title="Launch AQBot for the first time">
+    Open AQBot from your Applications folder (macOS), Start menu (Windows), or application launcher (Linux). On first launch, AQBot creates its data directories (`~/.aqbot/` and `~/Documents/aqbot/`) automatically.
+  </Step>
 
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
+  <Step title="Add your first AI provider">
+    Before you can chat, you need to connect at least one AI provider:
 
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
+    1. Click **Settings** (gear icon) in the sidebar
+    2. Select **Providers**
+    3. Click **Add Provider**
+    4. Choose your provider (e.g., **OpenAI**)
+    5. Enter your API key
 
-### Step 3: Go live
+    ```
+    Provider: OpenAI
+    Base URL: https://api.openai.com/v1  (pre-filled)
+    API Key:  sk-...your-key-here...
+    ```
 
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
+    6. Click **Save** — AQBot will fetch the available model list automatically
 
-## Next steps
+    <Tip>
+      You can add multiple API keys for the same provider. AQBot rotates between them automatically to distribute rate limit pressure. See [Configuring providers](/settings/providers) for details.
+    </Tip>
+  </Step>
 
-Now that you have your docs running, explore these key features:
+  <Step title="Create your first conversation">
+    Return to the main chat view:
+
+    1. Click **New Chat** (pencil icon or `+` button)
+    2. In the model selector at the top of the chat, choose a model (e.g., `gpt-4o`)
+    3. The conversation is ready — type your first message in the input box
+  </Step>
+
+  <Step title="Send a message and explore">
+    Type a message and press **Enter** (or click the send button). AQBot streams the response token by token in real time.
+
+    A few things to try next:
+    - Switch models mid-conversation using the model selector
+    - Ask the same question to multiple models simultaneously using the **Multi-model** option
+    - Enable **Agent mode** to let the AI read/write files and run commands
+    - Upload a document to the **Knowledge Base** and ask questions about it
+
+    <Tip>
+      If a response includes code, AQBot embeds a Monaco editor in the code block — you can copy, view a diff, or edit the code directly.
+    </Tip>
+  </Step>
+</Steps>
+
+## What's next
 
 <CardGroup cols={2}>
-
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
-
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
-
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
-
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
-
+  <Card title="Chat & Models" icon="message" href="/features/chat-and-models">
+    Learn about model parameters, message versioning, and conversation branching
+  </Card>
+  <Card title="AI Agent mode" icon="robot" href="/features/ai-agent">
+    Enable autonomous multi-step task execution with file and command access
+  </Card>
+  <Card title="API Gateway" icon="server" href="/gateway/overview">
+    Expose a local OpenAI-compatible endpoint for other tools to use
+  </Card>
+  <Card title="Knowledge Base" icon="database" href="/features/knowledge-and-memory">
+    Upload documents and query them semantically in your conversations
+  </Card>
 </CardGroup>
-
-<Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
-</Note>

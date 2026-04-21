@@ -1,0 +1,87 @@
+---
+title: "Web search integration in AQBot conversations"
+description: "Enable live web search in AQBot using Tavily, Zhipu WebSearch, or Bocha. Every response includes inline citation links back to the source pages."
+---
+
+AQBot can fetch live search results and weave them directly into the model's responses. When you enable web search for a conversation, AQBot queries your configured search provider, retrieves the top results, and passes them to the model as context. The model cites its sources inline so you can trace every claim back to its origin. This is useful any time you need up-to-date information that the model's training data may not cover—breaking news, current documentation, pricing, and more.
+
+<Note>
+  Citations appear as inline references in the model's response, showing the source title and URL for each piece of information drawn from search results. You can click any citation to open the source page.
+</Note>
+
+## Enabling web search
+
+<Steps>
+  <Step title="Configure a search provider">
+    Before you can use web search, you need at least one search provider configured. Go to **Settings** → **Search** and add a provider (see the provider setup instructions below).
+  </Step>
+  <Step title="Open a conversation">
+    Start a new conversation or open an existing one from the sidebar.
+  </Step>
+  <Step title="Enable Search in the toolbar">
+    Click the **Search** toggle in the message composer toolbar. When enabled, the icon is highlighted and the label reads **Search on**.
+  </Step>
+  <Step title="Send your message">
+    Type your message and send it. AQBot automatically runs a search query based on your message, injects the results as context, and generates a response with citations.
+  </Step>
+</Steps>
+
+## Supported search providers
+
+AQBot supports the following search providers. Each requires an API key that you configure once in **Settings** → **Search**.
+
+<Tabs>
+  <Tab title="Tavily">
+    Tavily is a search API designed specifically for AI applications. It returns clean, structured results with high relevance for factual queries.
+
+    **Setup:**
+
+    1. Create an account at [tavily.com](https://tavily.com) and copy your API key from the dashboard.
+    2. In AQBot, go to **Settings** → **Search** → **Add provider**.
+    3. Select **Tavily** as the provider type.
+    4. Paste your API key into the **API key** field.
+    5. Click **Save** and then **Test** to verify the connection.
+
+    **Provider type value:** `tavily`
+
+    Tavily does not require a custom endpoint — AQBot uses the default Tavily API URL automatically.
+  </Tab>
+  <Tab title="Zhipu WebSearch">
+    Zhipu WebSearch is a search service from Zhipu AI, well-suited for queries that benefit from Chinese-language coverage alongside global results.
+
+    **Setup:**
+
+    1. Log in to the Zhipu AI open platform and generate an API key.
+    2. In AQBot, go to **Settings** → **Search** → **Add provider**.
+    3. Select **Zhipu WebSearch** as the provider type.
+    4. Paste your API key into the **API key** field.
+    5. Click **Save** and then **Test** to verify the connection.
+
+    **Provider type value:** `zhipu`
+
+    You can optionally set a custom endpoint if your organization uses a private Zhipu deployment.
+  </Tab>
+  <Tab title="Bocha">
+    Bocha is a search provider with strong coverage of Chinese-language web content, useful for queries focused on Chinese-language sources or mixed-language research.
+
+    **Setup:**
+
+    1. Register at the Bocha developer portal and generate an API key.
+    2. In AQBot, go to **Settings** → **Search** → **Add provider**.
+    3. Select **Bocha** as the provider type.
+    4. Paste your API key into the **API key** field.
+    5. Click **Save** and then **Test** to verify the connection.
+
+    **Provider type value:** `bocha`
+  </Tab>
+</Tabs>
+
+## How citations work
+
+When web search is active, AQBot retrieves results before generating each response. The model uses those results to ground its answer in real, current information. Each piece of information drawn from a search result is annotated with a citation — a numbered reference that links back to the source URL and title. Citations are rendered inline in the response body, not as a footnote section, so the source context is always visible next to the relevant claim.
+
+AQBot stores the search results alongside the conversation so citations remain clickable even after the session ends.
+
+## API key storage
+
+Your search provider API keys are encrypted at rest using AES-256 encryption. AQBot stores the ciphertext locally in `~/.aqbot/` and decrypts the key only at the moment a search request is made. The plaintext key is never written to disk.

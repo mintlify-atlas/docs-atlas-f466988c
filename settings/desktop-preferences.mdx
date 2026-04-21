@@ -1,0 +1,110 @@
+---
+title: "Desktop preferences and interface settings in AQBot"
+description: "Customize AQBot's theme, display language, keyboard shortcuts, system tray, proxy, and startup behavior from the desktop preferences panel."
+---
+
+AQBot gives you precise control over how the application looks and behaves on your desktop. All preferences are stored locally in the database and take effect immediately without restarting — except for auto-start and proxy changes, which require a restart to apply at the OS level.
+
+To open the preferences panel, go to **Settings → General** or **Settings → Appearance** depending on the category you want to adjust.
+
+<AccordionGroup>
+  <Accordion title="Theme">
+    AQBot ships with dark and light themes and can follow your operating system's appearance setting automatically.
+
+    - **Follow system** — AQBot switches between dark and light mode whenever your OS appearance changes. This is the default.
+    - **Dark** — Always use the dark theme regardless of system settings.
+    - **Light** — Always use the light theme regardless of system settings.
+
+    You can also adjust the **primary color** (the accent color used for buttons, highlights, and links), **border radius**, and **font size** to match your personal preference. Code blocks have separate light and dark code themes: `poimandres` (dark) and `github-light` (light) by default, with a full list of alternatives in the dropdown.
+  </Accordion>
+
+  <Accordion title="Interface language">
+    You can change the display language at any time from **Settings → General → Language**. The change takes effect immediately across the entire interface, including the system tray menu.
+
+    <Note>
+      AQBot supports eleven languages: Simplified Chinese, Traditional Chinese, English, Japanese, Korean, French, German, Spanish, Russian, Hindi, and Arabic.
+    </Note>
+
+    Select the language from the dropdown and it will be applied instantly — no restart required.
+  </Accordion>
+
+  <Accordion title="System tray">
+    When **Minimize to tray on close** is enabled, clicking the window close button hides AQBot to the system tray instead of quitting the application. Background services (the API gateway, auto-backup scheduler, global shortcuts) continue running while the window is hidden.
+
+    - **Enable tray icon** — Shows or hides the system tray icon entirely. Disabling this also disables minimize-to-tray behavior.
+    - **Minimize to tray on close** (`close_to_tray`) — Hides the main window to the tray when you click the window's close button.
+    - **Start minimized** — Launches AQBot in the background on startup without showing the main window.
+
+    To quit AQBot completely, right-click the tray icon and select **Quit**.
+  </Accordion>
+
+  <Accordion title="Always on top">
+    Enable **Always on top** in **Settings → General** to pin the AQBot window above all other windows on your desktop. This is useful when you want to keep the chat visible while working in other applications.
+
+    The setting takes effect immediately and persists across restarts.
+  </Accordion>
+
+  <Accordion title="Global shortcuts">
+    Global keyboard shortcuts let you summon or dismiss AQBot from anywhere on your desktop, even when the window is not focused.
+
+    All shortcuts are customizable. Go to **Settings → General → Keyboard Shortcuts** and click any shortcut field to record a new key combination.
+
+    | Action | Default shortcut | Description |
+    |---|---|---|
+    | Toggle current window | System default | Show or hide the main AQBot window |
+    | Toggle all windows | System default | Show or hide all AQBot windows |
+    | Close window | System default | Close the active window |
+    | New conversation | System default | Start a new chat |
+    | Open settings | System default | Jump directly to the settings panel |
+    | Toggle model selector | System default | Open or close the model picker |
+    | Fill last message | System default | Re-insert your last sent message |
+    | Clear context | System default | Clear the current conversation context |
+    | Clear conversation messages | System default | Delete all messages in the current conversation |
+    | Toggle gateway | System default | Start or stop the local API gateway |
+    | Toggle mode | System default | Switch between Chat and Agent mode |
+
+    Disable all global shortcuts at once by toggling **Enable global shortcuts** off. Individual shortcuts can also be disabled by clearing their key binding.
+  </Accordion>
+
+  <Accordion title="Auto start">
+    Enable **Launch on system startup** in **Settings → General** to have AQBot start automatically when you log in to your operating system.
+
+    On macOS and Windows, AQBot registers itself with the OS login items. On Linux, a `.desktop` autostart entry is created in `~/.config/autostart/`.
+
+    Combine this with **Start minimized** to have AQBot load in the background without interrupting your startup flow.
+  </Accordion>
+
+  <Accordion title="Proxy">
+    If your network requires a proxy, configure it in **Settings → General → Proxy**. AQBot routes all outbound API requests through the configured proxy.
+
+    - **Proxy type** — Choose `HTTP`, `SOCKS5`, or `System` to use the proxy auto-detected from your OS network settings.
+    - **Proxy address** — Hostname or IP address of the proxy server.
+    - **Proxy port** — Port number the proxy listens on.
+
+    Example HTTP proxy configuration:
+
+    ```text
+    Type:    HTTP
+    Address: 192.168.1.100
+    Port:    8888
+    ```
+
+    Example SOCKS5 proxy configuration:
+
+    ```text
+    Type:    SOCKS5
+    Address: 127.0.0.1
+    Port:    1080
+    ```
+
+    Set the type to `System` to delegate proxy detection to the operating system. Leave the proxy type unset (or set to `None`) to bypass all proxies and connect directly.
+  </Accordion>
+
+  <Accordion title="Auto update">
+    AQBot checks for a new release on every startup. When an update is available, a notification appears prompting you to download and install it.
+
+    - **Update check interval** — How often (in minutes) AQBot polls for updates after the initial startup check. The default is 60 minutes.
+
+    You can initiate a manual check at any time from **Settings → General → Check for updates**.
+  </Accordion>
+</AccordionGroup>

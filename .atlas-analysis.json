@@ -1,0 +1,90 @@
+{
+  "projectType": "saas",
+  "projectName": "AQBot",
+  "projectDescription": "A lightweight, high-performance cross-platform AI chat desktop client with a built-in local API gateway, supporting OpenAI, Claude, Gemini, and all OpenAI-compatible providers.",
+  "theme": "almond",
+  "primaryColor": "#36a138",
+  "lightColor": "#93c494",
+  "darkColor": "#cfe3d0",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "quickstart",
+              "installation"
+            ]
+          },
+          {
+            "group": "Core Features",
+            "pages": [
+              "features/chat-and-models",
+              "features/ai-agent",
+              "features/knowledge-and-memory",
+              "features/content-rendering"
+            ]
+          },
+          {
+            "group": "API Gateway",
+            "pages": [
+              "gateway/overview",
+              "gateway/setup",
+              "gateway/api-keys",
+              "gateway/usage-analytics"
+            ]
+          },
+          {
+            "group": "Tools & Extensions",
+            "pages": [
+              "extensions/mcp-protocol",
+              "extensions/web-search",
+              "extensions/built-in-tools"
+            ]
+          },
+          {
+            "group": "Data & Settings",
+            "pages": [
+              "settings/providers",
+              "settings/security-and-backup",
+              "settings/desktop-preferences"
+            ]
+          },
+          {
+            "group": "Help",
+            "pages": [
+              "troubleshooting",
+              "faq"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Multi-provider AI chat with OpenAI, Claude, Gemini, and all OpenAI-compatible APIs",
+    "AI Agent mode with three-tier permission controls and sandboxed working directory",
+    "Local API Gateway with OpenAI, Claude, and Gemini native protocol support",
+    "Local knowledge base (RAG) with semantic search across uploaded documents",
+    "Multi-namespace memory system for persistent conversational context",
+    "Full MCP (Model Context Protocol) implementation with stdio and HTTP transports",
+    "AES-256 encryption for sensitive data with isolated data directories",
+    "Auto backup to local directories or WebDAV, with one-click restore",
+    "Cross-platform support: macOS, Windows 10/11, and Linux",
+    "Rich content rendering: Markdown, LaTeX, Mermaid, D2 diagrams, Monaco editor"
+  ],
+  "publicApiSurface": [
+    "POST /v1/chat/completions — OpenAI-compatible chat completions endpoint",
+    "POST /v1/responses — OpenAI Responses API endpoint",
+    "GET /v1/models — List available models",
+    "POST /v1/messages — Anthropic Claude Messages API endpoint",
+    "POST /v1/messages/count_tokens — Anthropic token counting endpoint",
+    "GET /v1beta/models — Gemini list models endpoint",
+    "POST /v1beta/models/{model_action} — Gemini model operations (generateContent, streamGenerateContent, countTokens)",
+    "GET /v1/realtime — WebRTC realtime voice endpoint (coming soon)",
+    "GET /health — Gateway health check endpoint"
+  ]
+}

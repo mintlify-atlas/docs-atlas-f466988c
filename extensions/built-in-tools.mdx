@@ -1,0 +1,67 @@
+---
+title: "Built-in MCP tools available in AQBot"
+description: "Use AQBot's built-in @aqbot/fetch MCP tool to give the AI instant access to web content and URLs — no external server or API key required."
+---
+
+AQBot ships a set of built-in MCP tools that are ready to use without any configuration. These tools are registered as a special internal MCP server with the source identifier `builtin`, so they appear in your tool list alongside any external MCP servers you add. Built-in tools go through the same **Tool Execution Panel** as external tools — you see the inputs, the result, and the cost — with no extra setup required.
+
+## Using built-in tools in a conversation
+
+Built-in tools are available automatically in **Agent** mode. You do not need to add an MCP server entry or provide an API key. To use them:
+
+1. Start or open a conversation and switch to **Agent** mode.
+2. Ask the model to perform a task that requires a built-in tool — for example, asking it to read a webpage.
+3. The model decides when to call a tool. When it does, the **Tool Execution Panel** appears inline showing the tool name, its input arguments, and the returned result.
+4. Depending on your permission level, you may be asked to approve the call before it runs.
+
+## Tool execution panel
+
+Every tool call — built-in or external — is shown in the **Tool Execution Panel** embedded in the conversation thread. The panel displays:
+
+- The tool name and the server that provides it.
+- The exact arguments the model passed to the tool.
+- The full result returned by the tool, including any error messages.
+- Token usage and estimated cost for the round trip.
+
+AQBot tracks cumulative token usage and cost per session so you can monitor how much tool use is contributing to your session spend.
+
+## Available built-in tools
+
+<AccordionGroup>
+  <Accordion title="@aqbot/fetch" icon="globe" defaultOpen={true}>
+    The `@aqbot/fetch` tool fetches the content of any publicly accessible URL and returns it as text. The model can use it to read documentation pages, retrieve API responses, check a webpage for current information, or load any URL-addressable resource.
+
+    **Input parameters:**
+
+    | Parameter | Type | Description |
+    |-----------|------|-------------|
+    | `url` | string | The URL to fetch. Must be a valid `http` or `https` URL. |
+    | `maxLength` | number (optional) | Maximum number of characters to return. Useful for very large pages. |
+
+    **Example conversation:**
+
+    > **You:** What is the current version of the Mintlify CLI? Check the npm page.
+    >
+    > **AQBot (tool call):** `@aqbot/fetch` → `{ "url": "https://www.npmjs.com/package/mintlify" }`
+    >
+    > **Tool result:** `... "version": "4.0.262" ...`
+    >
+    > **AQBot:** The current version of the Mintlify CLI on npm is **4.0.262**.
+
+    The result is injected back into the model's context so it can reason over the fetched content just like any other input.
+
+    **Things to keep in mind:**
+
+    - `@aqbot/fetch` does not execute JavaScript, so pages that rely entirely on client-side rendering may return incomplete content.
+    - Very large pages are truncated to avoid exceeding the model's context window. Use `maxLength` to control this explicitly.
+    - Requests are made from your local machine, so internal URLs on your network are reachable.
+  </Accordion>
+</AccordionGroup>
+
+## Cost tracking for tool use
+
+Each tool call consumes tokens — the model's request to call the tool and the tool's result both count toward your session usage. AQBot tracks this in real time and displays the running total in the conversation header. You can review per-session token usage and cost breakdowns in the session statistics panel.
+
+<Note>
+  Built-in tools run locally through AQBot's internal MCP server. They do not send your data to any third-party service beyond the model provider you have configured.
+</Note>

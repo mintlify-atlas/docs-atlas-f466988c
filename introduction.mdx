@@ -1,0 +1,88 @@
+---
+title: "AQBot: AI chat client with local API gateway"
+description: "AQBot is a lightweight cross-platform AI desktop client with a built-in local API gateway, supporting OpenAI, Claude, Gemini, and all compatible APIs."
+---
+
+AQBot is a cross-platform desktop application that brings AI conversation to your machine without routing data through a third-party cloud. You connect directly to AI providers using your own API keys, and every message, key, and setting stays on your device — encrypted at rest with AES-256. Beyond chat, AQBot includes a built-in local API gateway that exposes an OpenAI-compatible endpoint so any tool that speaks HTTP can use your providers through a single interface.
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Install AQBot and send your first message in minutes.
+  </Card>
+  <Card title="Chat & models" icon="message" href="/features/chat-and-models">
+    Multi-provider chat, model selection, streaming output, and branching.
+  </Card>
+  <Card title="API gateway" icon="server" href="/gateway/overview">
+    Run a local OpenAI-compatible API server directly from your desktop.
+  </Card>
+  <Card title="AI agent" icon="robot" href="/features/ai-agent">
+    Let AQBot autonomously read files, run commands, and complete multi-step tasks.
+  </Card>
+</CardGroup>
+
+## Key features
+
+### Chat and models
+
+- **Multi-provider support** — Connect to OpenAI, Anthropic Claude, Google Gemini, and any OpenAI-compatible API from a single interface.
+- **Multi-key rotation** — Add multiple API keys per provider; AQBot rotates them automatically to distribute rate-limit pressure.
+- **Streaming output** — Responses render token by token with collapsible thinking blocks for reasoning models.
+- **Message versions** — Generate multiple responses per message and switch between them to compare model output.
+- **Conversation branching** — Fork a new branch from any message node and compare branches side by side.
+- **Multi-model simultaneous response** — Send one prompt to several models at once and compare answers in tabs or side-by-side view.
+
+### AI agent
+
+- **Agent mode** — Switch to Agent mode for autonomous multi-step execution: read and write files, run shell commands, analyze code, and more.
+- **Three permission levels** — Default (writes need approval), Accept Edits (auto-approve file changes), and Full Access (no prompts), giving you control over how much autonomy the agent has.
+- **Working directory sandbox** — Agent operations are strictly confined to the directory you specify.
+- **Cost tracking** — Real-time token usage and cost statistics per session.
+
+### Local API gateway
+
+- **OpenAI-compatible endpoint** — Run a local HTTP or HTTPS server that any OpenAI-compatible client can point to.
+- **Multi-protocol support** — Native support for OpenAI, Claude, and Gemini interfaces in a single gateway.
+- **API key management** — Generate, revoke, and enable or disable gateway access keys independently of provider keys.
+- **Usage analytics** — Request volume and token usage broken down by key, provider, and date.
+- **Configuration templates** — One-click setup templates for Claude CLI, Codex, OpenCode, Gemini CLI, and other popular tools.
+
+### Knowledge and search
+
+- **Local knowledge base (RAG)** — Upload documents for automatic parsing, chunking, and indexing; AQBot retrieves relevant passages during conversations.
+- **Memory system** — Maintain persistent facts across conversations using named namespaces.
+- **Web search** — Integrated with Tavily, Zhipu WebSearch, Bocha, and others, with inline citation annotations.
+
+### Content rendering
+
+- **Markdown rendering** — Full support for code highlighting, LaTeX math, tables, and task lists.
+- **Monaco code editor** — Embedded Monaco Editor in code blocks with syntax highlighting, copy, and diff preview.
+- **Diagram rendering** — Built-in Mermaid flowchart and D2 architecture diagram rendering.
+
+### Data and security
+
+- **AES-256 encryption** — API keys and sensitive data are encrypted locally; the master key is stored with `0600` permissions.
+- **Isolated data directories** — Application state lives in `~/.aqbot/`; user files in `~/Documents/aqbot/`.
+- **Auto backup** — Scheduled backups to a local directory or WebDAV storage.
+- **Conversation export** — Export as PNG screenshot, Markdown, plain text, or JSON.
+
+### Desktop experience
+
+- **Theme switching** — Dark and light themes that follow the system preference or can be set manually.
+- **11 interface languages** — Simplified Chinese, Traditional Chinese, English, Japanese, Korean, French, German, Spanish, Russian, Hindi, and Arabic, switchable at any time in **Settings**.
+- **System tray** — Minimize to the system tray on window close without stopping background services.
+- **Global shortcuts** — Customizable keyboard shortcuts to summon the main window from any application.
+- **MCP protocol** — Full Model Context Protocol support for both stdio and HTTP transports.
+
+## Platform support
+
+AQBot runs on macOS, Windows 10/11, and Linux. See [Installation](/installation) for platform-specific download and setup instructions.
+
+| Platform | Architectures |
+|---|---|
+| macOS | Apple Silicon (arm64), Intel (x86_64) |
+| Windows 10/11 | x86\_64, arm64 |
+| Linux | x86\_64 (AppImage/deb/rpm), arm64 (AppImage/deb/rpm) |
+
+## License
+
+AQBot is open source under the [AGPL-3.0](https://github.com/AQBot-Desktop/AQBot/blob/main/LICENSE) license.

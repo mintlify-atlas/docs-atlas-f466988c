@@ -1,0 +1,73 @@
+---
+title: "Gateway usage analytics and request logs in AQBot"
+description: "Monitor AQBot gateway traffic, token usage, and full request logs broken down by API key, provider, and date — all stored locally on your machine."
+---
+
+AQBot records every request that passes through the gateway, along with token counts, response times, and status codes. You can view aggregated statistics broken down by API key, provider, or date, and you can inspect the raw request log for detailed diagnostics. All data is stored in AQBot's local SQLite database and is never transmitted externally.
+
+<Note>
+  All analytics data is stored locally in `~/.aqbot/`. Nothing is sent to AQBot servers or any third party.
+</Note>
+
+## Viewing metrics and logs
+
+Navigate to **Gateway → Metrics** for aggregated usage statistics, or **Gateway → Logs** for the full request log.
+
+## Analytics dimensions
+
+<AccordionGroup>
+  <Accordion title="Usage by API key">
+    The **By Key** breakdown shows total request count, prompt tokens, and completion tokens for each gateway API key you have created. Use this view to understand which tool or workflow is consuming the most tokens and to spot unexpected activity on a key you expected to be idle.
+
+    Each row in the table includes:
+
+    - **Key name** — the description you provided when creating the key
+    - **Requests** — total number of proxied requests
+    - **Prompt tokens** — cumulative input tokens sent upstream
+    - **Completion tokens** — cumulative output tokens received from upstream
+  </Accordion>
+
+  <Accordion title="Usage by provider">
+    The **By Provider** breakdown groups token usage by the upstream AI provider (e.g. OpenAI, Anthropic, Gemini). This helps you track which provider accounts are being used and how much traffic is going to each one — useful when you have multiple providers configured for different models or workflows.
+
+    Token counts reflect what was reported by each provider in the response body. For streaming responses, AQBot accumulates token counts from the SSE event stream before recording.
+  </Accordion>
+
+  <Accordion title="Usage by date">
+    The **By Day** chart shows daily request volume and token usage over the last 30 days (configurable). Use this view to spot spikes, understand usage trends, and correlate changes in consumption with specific events — such as enabling a new tool or changing a model.
+
+    The date range defaults to the past 30 days and can be adjusted in the metrics view.
+  </Accordion>
+
+  <Accordion title="Request and response logs">
+    The **Logs** tab (**Gateway → Logs**) shows a complete record of every request the gateway has processed. Each log entry includes:
+
+    - **Timestamp** — when the request was received
+    - **Method and path** — e.g. `POST /v1/chat/completions`
+    - **Model** — the model name extracted from the request
+    - **Provider** — the upstream provider the request was forwarded to
+    - **Key name** — the gateway API key used
+    - **Status code** — HTTP status returned to the caller (200, 502, etc.)
+    - **Duration** — time from request receipt to response completion, in milliseconds
+    - **Prompt tokens / Completion tokens** — token counts for the request
+    - **Error** — error message if the request failed
+
+    You can scroll through entries and clear the log at any time using the **Clear logs** button. Clearing removes log entries from the local database but does not affect the aggregated metrics counters.
+  </Accordion>
+
+  <Accordion title="Filtering and searching logs">
+    The **Logs** tab supports filtering by key name, model, provider, and status code. Type in the search bar to narrow the displayed entries in real time. Pagination loads up to 100 entries at a time; use the offset controls to navigate older records.
+
+    For programmatic access to log data, AQBot exposes the `list_gateway_request_logs` Tauri command which accepts `limit` and `offset` parameters.
+  </Accordion>
+</AccordionGroup>
+
+## Aggregate metrics summary
+
+The **Overview** tab shows a quick summary card with lifetime totals:
+
+- **Total requests** — all requests processed since the database was created
+- **Total prompt tokens** — cumulative input tokens across all requests and providers
+- **Total completion tokens** — cumulative output tokens across all requests and providers
+
+These numbers update in real time as new requests come in while the gateway is running.

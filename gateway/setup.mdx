@@ -1,0 +1,116 @@
+---
+title: "Setting up and configuring the AQBot API gateway"
+description: "Enable the AQBot local gateway, configure its port and SSL/TLS settings, create an API key, and verify the setup with a curl test request."
+---
+
+Setting up the AQBot gateway takes only a few minutes. You open the **Gateway** tab, start the server, optionally enable HTTPS, and create an API key. After that, any tool that accepts an OpenAI-compatible base URL can route its requests through AQBot.
+
+<Note>
+  The gateway binds to `127.0.0.1` by default and is only reachable from your local machine. If you change the listen address to `0.0.0.0` or a specific network interface, make sure you understand the access implications and use strong API keys.
+</Note>
+
+<Steps>
+  <Step title="Open the Gateway tab">
+    Launch AQBot and click **Gateway** in the left navigation sidebar. The **Overview** sub-tab shows the current server status, bound address, and basic metrics.
+  </Step>
+
+  <Step title="Start the gateway">
+    Click the **Start** toggle or button on the **Overview** tab. AQBot binds an HTTP listener on the configured address and port (default `127.0.0.1:8080`). The status indicator turns green when the server is running.
+  </Step>
+
+  <Step title="Configure the port">
+    Go to **Gateway → Settings** to change the HTTP port. You can also set the listen address here. Changes take effect the next time you start the gateway.
+  </Step>
+
+  <Step title="Enable SSL/TLS (optional)">
+    To serve the gateway over HTTPS:
+
+    1. In **Gateway → Settings**, toggle **SSL enabled**.
+    2. Set an **HTTPS port** (default `8443`) that differs from the HTTP port.
+    3. Provide paths to a PEM certificate and private key file, **or** click **Generate self-signed certificate** to have AQBot create one automatically. The generated certificate covers `localhost` and `127.0.0.1` and is stored in `~/.aqbot/ssl/`.
+    4. Optionally enable **Force SSL** to have the HTTP port return 307 redirects to HTTPS instead of serving the gateway directly.
+
+    Restart the gateway after changing SSL settings.
+  </Step>
+
+  <Step title="Create an API key">
+    Go to **Gateway → API Keys** and create at least one key before making requests. See [Managing API keys](/gateway/api-keys) for full details.
+  </Step>
+
+  <Step title="Test with a curl request">
+    Replace `PORT` with your HTTP port (default `8080`) and `YOUR_KEY` with the plain key value shown when you created it:
+
+    ```bash
+    curl http://localhost:8080/v1/chat/completions \
+      -H "Authorization: Bearer YOUR_KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "model": "gpt-4o",
+        "messages": [{"role": "user", "content": "Hello!"}]
+      }'
+    ```
+
+    You can also verify the server is reachable without authentication:
+
+    ```bash
+    curl http://localhost:8080/health
+    # {"status":"ok"}
+    ```
+  </Step>
+</Steps>
+
+## Configuration templates for popular tools
+
+Instead of manually editing config files, use **Gateway → Quick Connect** to apply a template automatically. For reference, the snippets below show what each template produces.
+
+<Tabs>
+  <Tab title="Claude Code">
+    Add these lines to your shell profile (`~/.bashrc` or `~/.zshrc`):
+
+    ```bash
+    export ANTHROPIC_AUTH_TOKEN="YOUR_KEY"
+    export ANTHROPIC_BASE_URL="http://localhost:8080/v1"
+    ```
+
+    Claude Code uses the Anthropic Messages protocol, which AQBot exposes at `/v1/messages`.
+  </Tab>
+  <Tab title="Cursor">
+    Add to Cursor's `settings.json` (User scope):
+
+    ```json
+    {
+      "openai.apiKey": "YOUR_KEY",
+      "openai.apiBaseUrl": "http://localhost:8080/v1"
+    }
+    ```
+  </Tab>
+  <Tab title="VS Code Continue">
+    Add to `~/.continue/config.json`:
+
+    ```json
+    {
+      "models": [{
+        "title": "AQBot Gateway",
+        "provider": "openai",
+        "apiBase": "http://localhost:8080/v1",
+        "apiKey": "YOUR_KEY"
+      }]
+    }
+    ```
+  </Tab>
+  <Tab title="OpenAI-compatible">
+    Use these settings in any OpenAI-compatible client:
+
+    ```json
+    {
+      "api_key": "YOUR_KEY",
+      "base_url": "http://localhost:8080/v1",
+      "model": "gpt-4"
+    }
+    ```
+  </Tab>
+</Tabs>
+
+<Tip>
+  Use **Gateway → Quick Connect** for one-click setup. AQBot writes the correct URL and key directly into the tool's config file and creates a backup of the original so you can restore it later.
+</Tip>

@@ -1,0 +1,112 @@
+---
+title: "Troubleshooting AQBot installation and runtime issues"
+description: "Fix common AQBot problems including macOS security warnings, Windows SmartScreen blocks, API key errors, and agent mode failures."
+---
+
+This page covers the most common issues you may encounter when installing or running AQBot, along with step-by-step fixes. If your issue is not listed here, check the [GitHub Issues](https://github.com/AQBot-Desktop/AQBot/issues) tracker or open a new report.
+
+## macOS issues
+
+<AccordionGroup>
+  <Accordion title="AQBot is damaged and cannot be opened">
+    macOS shows this message when an app is not signed by Apple. Run the following two commands in Terminal to resolve it.
+
+    **Step 1 — Allow apps from "Anywhere":**
+
+    ```bash
+    sudo spctl --master-disable
+    ```
+
+    Then open **System Settings → Privacy & Security → Security** and select **Anywhere**.
+
+    **Step 2 — Remove the quarantine attribute:**
+
+    ```bash
+    sudo xattr -dr com.apple.quarantine /Applications/AQBot.app
+    ```
+
+    <Tip>
+      You can drag the AQBot icon onto the Terminal window after typing `sudo xattr -dr com.apple.quarantine ` to fill in the path automatically.
+    </Tip>
+  </Accordion>
+
+  <Accordion title="Cannot verify developer warning">
+    If macOS shows "AQBot can't be opened because Apple cannot check it for malicious software", follow the same two-step fix above (disable Gatekeeper with `sudo spctl --master-disable`, then strip the quarantine flag with `sudo xattr -dr com.apple.quarantine`).
+
+    After running both commands, open **System Settings → Privacy & Security** and click **Open Anyway** in the Security section. You only need to do this once.
+  </Accordion>
+
+  <Accordion title="macOS Ventura and later — app blocked on first launch">
+    Even after completing the two steps above, macOS Ventura (and newer) may still block the first launch. Go to **System Settings → Privacy & Security** and click **Open Anyway** in the Security section. After you confirm once, AQBot opens normally on subsequent launches.
+
+    <Warning>
+      The **Open Anyway** button only appears after you have already run the `sudo spctl --master-disable` and `sudo xattr -dr` commands. Complete those steps first.
+    </Warning>
+  </Accordion>
+</AccordionGroup>
+
+## Windows issues
+
+<AccordionGroup>
+  <Accordion title="Windows SmartScreen blocks the installer">
+    Windows SmartScreen may display "Windows protected your PC" when you run the AQBot installer, because the executable is not yet widely recognized by Microsoft's reputation service.
+
+    To proceed:
+    1. Click **More info** in the SmartScreen dialog.
+    2. Click **Run anyway**.
+
+    AQBot will then install normally. SmartScreen warnings typically diminish as more users download and run the installer.
+  </Accordion>
+
+  <Accordion title="App does not start after installation">
+    If AQBot silently fails to open after installation, Microsoft Visual C++ Redistributable may be missing from your system. Download and install the latest version from Microsoft, then try launching AQBot again.
+
+    <Note>
+      This is most common on freshly installed Windows systems that have not yet received all runtime dependencies through Windows Update.
+    </Note>
+  </Accordion>
+</AccordionGroup>
+
+## General issues
+
+<AccordionGroup>
+  <Accordion title="API key errors or authentication failures">
+    If AQBot reports an invalid API key or authentication error, check the following:
+
+    - Confirm the key is correct — copy it directly from your provider dashboard and re-enter it in **Settings → Providers**.
+    - Verify the **Base URL** for the provider matches what your account uses. Some providers use region-specific or custom endpoints.
+    - Check your network connection and proxy settings. If you are behind a proxy, configure it in **Settings → Proxy** using your HTTP or SOCKS5 proxy address.
+  </Accordion>
+
+  <Accordion title="API Gateway is not accessible">
+    If requests to the built-in API Gateway are failing or timing out:
+
+    - Check that the gateway is running. Open the **Gateway** tab in the sidebar and confirm the gateway is enabled.
+    - Verify the gateway port is not blocked by your system firewall or any security software. The default port is shown in the gateway settings.
+    - By default the gateway listens on `localhost` only. If you need to reach it from another device on your network, update the bind address and open the corresponding port in your firewall.
+  </Accordion>
+
+  <Accordion title="Knowledge Base is not returning results">
+    If queries against a knowledge base return no results or seem to miss relevant content:
+
+    - Wait for indexing to finish. After uploading documents, AQBot must parse, chunk, and index them before they are available for retrieval. Large files can take a moment.
+    - Check the **Knowledge Base** panel for any indexing errors shown next to individual documents.
+    - Re-run your query after confirming all documents show a completed status.
+
+    <Note>
+      Querying a knowledge base while indexing is still in progress may return incomplete results. Always wait for the indexing status to show complete before drawing conclusions.
+    </Note>
+  </Accordion>
+
+  <Accordion title="Agent mode fails or cannot access files">
+    If **Agent mode** errors out or reports permission issues when reading or writing files:
+
+    - Confirm you have set a **working directory** for the agent session. Agent operations are sandboxed to this directory; without it, file access may fail entirely.
+    - Make sure AQBot has filesystem read and write permissions for the working directory you specified. On macOS, you may need to grant **Full Disk Access** or folder-level access in **System Settings → Privacy & Security**.
+    - Review the **Tool Approval Panel** — if a tool call was denied in a previous step, the agent may have been unable to complete a prerequisite action.
+
+    <Warning>
+      The working directory sandbox is intentional. Agent operations outside the configured working directory are blocked for security. Do not set the working directory to a sensitive location such as your home directory root.
+    </Warning>
+  </Accordion>
+</AccordionGroup>

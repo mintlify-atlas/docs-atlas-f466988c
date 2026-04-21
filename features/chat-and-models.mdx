@@ -1,0 +1,63 @@
+---
+title: "AI chat, model management, and multi-provider support"
+description: "Connect any OpenAI-compatible, Claude, or Gemini provider, manage models and API keys, and chat with multiple models simultaneously."
+---
+
+AQBot's chat interface is built around flexibility: you can connect any AI provider, fine-tune per-model parameters, rotate multiple API keys automatically, and even send the same question to several models at once to compare their answers side by side. Conversations are organized with pinning, archiving, branching, and automatic compression so your context window stays clean.
+
+<CardGroup cols={2}>
+  <Card title="Multi-provider support" icon="plug">
+    Connect OpenAI, Anthropic Claude, Google Gemini, or any OpenAI-compatible endpoint.
+  </Card>
+  <Card title="Model management" icon="sliders">
+    Fetch remote model lists and customize per-model parameters for each conversation.
+  </Card>
+  <Card title="Multi-key rotation" icon="rotate">
+    Add multiple API keys per provider; AQBot rotates them automatically to spread rate-limit pressure.
+  </Card>
+  <Card title="Multi-model responses" icon="table-columns">
+    Ask the same question to several models simultaneously and compare answers in a side-by-side view.
+  </Card>
+</CardGroup>
+
+## Streaming and thinking blocks
+
+AQBot renders responses token by token as they arrive from the API. For reasoning-capable models (such as Claude 3.5+ or o-series), thinking content is wrapped in collapsible blocks so you can inspect the model's chain of thought without it cluttering your conversation.
+
+<AccordionGroup>
+  <Accordion title="Collapsible thinking blocks">
+    When a model emits reasoning tokens, AQBot wraps them in a `<think>` block that you can expand or collapse inline. The thinking budget (number of reasoning tokens) is configurable per conversation from the model settings panel.
+  </Accordion>
+  <Accordion title="Message versions">
+    Every AI response can have multiple versions. After a reply arrives you can regenerate it — with the same model, different parameters, or an entirely different model — and switch between versions to compare outputs without losing any of them.
+  </Accordion>
+</AccordionGroup>
+
+## Conversation management
+
+The left sidebar groups conversations by time and lets you act on them individually or in bulk.
+
+<AccordionGroup>
+  <Accordion title="Pin and archive">
+    Pin important conversations to keep them at the top of the list. Archive conversations you no longer need in your active view; they remain searchable and restorable at any time.
+  </Accordion>
+  <Accordion title="Bulk operations">
+    Select multiple conversations from the sidebar to delete or archive them all at once.
+  </Accordion>
+  <Accordion title="Conversation branching">
+    Fork a new conversation from any message node in an existing one. Branched conversations share history up to the fork point and then diverge independently, letting you explore different directions without modifying the original.
+  </Accordion>
+  <Accordion title="Conversation compression">
+    When a conversation grows long, AQBot can automatically summarize older messages and replace them with a compact summary marker. This preserves key information while freeing context space for new messages. You can also trigger compression manually or delete it to restore the full history.
+  </Accordion>
+</AccordionGroup>
+
+## Model parameters
+
+<Note>
+  You can override **temperature**, **max tokens**, **top-p**, and **frequency penalty** individually for each conversation. Open the conversation settings panel (the model name in the header) and adjust the sliders or numeric inputs. Changes apply to all subsequent messages in that conversation without affecting your global provider defaults.
+</Note>
+
+## Multi-key rotation
+
+For providers where you hold several API keys — for example, multiple OpenAI project keys — add all of them under the same provider in **Settings → Providers**. AQBot selects the active key automatically for each request, distributing usage across keys to reduce the chance of hitting rate limits.

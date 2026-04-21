@@ -1,0 +1,71 @@
+---
+title: "Managing API keys for the AQBot gateway"
+description: "Create, enable, disable, and revoke gateway API keys that authenticate requests to AQBot's local server. Separate from your upstream provider credentials."
+---
+
+Gateway API keys are separate from your AI provider credentials. Your provider keys (OpenAI, Anthropic, Gemini, etc.) are stored encrypted inside AQBot and are used by the gateway to call upstream APIs on your behalf. Gateway API keys are what *you* — or a tool running on your machine — present to AQBot to prove it is allowed to use the gateway. You manage both types independently: provider keys in **Settings → Providers**, gateway keys in **Gateway → API Keys**.
+
+<Warning>
+  If you expose the gateway on a non-loopback interface (anything other than `127.0.0.1`), treat gateway API keys like passwords. Anyone who obtains a key can make requests through your gateway and consume your upstream provider quota.
+</Warning>
+
+## Creating a key
+
+<Steps>
+  <Step title="Open API Keys">
+    In AQBot, navigate to **Gateway → API Keys**.
+  </Step>
+
+  <Step title="Click Create key">
+    Click the **Create key** button. A dialog appears asking for a name (description) for the key.
+  </Step>
+
+  <Step title="Enter a name">
+    Type a descriptive name such as `claude-cli` or `opencode-dev`. The name is used only for your reference and appears in usage analytics and request logs.
+  </Step>
+
+  <Step title="Copy the plain key">
+    After creation, AQBot displays the full plain-text key value **once**. Copy it immediately and store it somewhere safe — AQBot does not show the full value again. The **API Keys** list only displays a truncated prefix afterward.
+  </Step>
+</Steps>
+
+## Passing the key in requests
+
+All protected gateway endpoints require an `Authorization` header with a `Bearer` token:
+
+```bash
+curl http://localhost:8080/v1/chat/completions \
+  -H "Authorization: Bearer aqbot-xxxxxxxxxxxxxxxx" \
+  -H "Content-Type: application/json" \
+  -d '{"model": "gpt-4o", "messages": [{"role": "user", "content": "Hi"}]}'
+```
+
+If the header is missing or the key is invalid or disabled, the gateway returns `401 Unauthorized`:
+
+```json
+{
+  "error": {
+    "message": "Invalid or disabled API key",
+    "type": "invalid_request_error",
+    "code": "invalid_api_key"
+  }
+}
+```
+
+## Enabling and disabling a key
+
+You can temporarily suspend a key without deleting it. In **Gateway → API Keys**, find the key row and toggle its **Enabled** switch off. Requests using that key immediately start returning `401` until you re-enable it. The key's usage history is preserved.
+
+Use this when you want to rotate keys without immediately breaking connected tools — enable the new key, update the tool's configuration, then disable the old key.
+
+## Revoking (deleting) a key
+
+To permanently remove a key, click the delete icon next to it in **Gateway → API Keys** and confirm. The key is immediately invalidated; any request using it returns `401`. Usage records associated with the deleted key are retained in the analytics database for historical reporting, but the key can no longer authenticate new requests.
+
+<Note>
+  There is no way to recover a deleted key. If you need to reconnect a tool after deleting its key, create a new key and update the tool's configuration.
+</Note>
+
+## Viewing key details
+
+Clicking a key row in the list shows its creation date, the last time it was used, and whether it is currently enabled. You can also reveal the truncated key prefix to help identify which key is used by which tool.

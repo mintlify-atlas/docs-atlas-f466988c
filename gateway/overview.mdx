@@ -1,0 +1,56 @@
+---
+title: "Local API Gateway — AQBot's OpenAI-compatible server"
+description: "AQBot's built-in local HTTP server lets any AI tool use your configured providers without exposing keys to cloud intermediaries."
+---
+
+AQBot includes a built-in local HTTP server that acts as a protocol-compatible gateway to all your configured AI providers. Once you start the gateway, any tool on your machine that speaks the OpenAI, Claude, or Gemini API — a CLI, an IDE extension, another desktop app — can send requests to AQBot instead of directly to the upstream providers. AQBot handles authentication, key rotation, and usage tracking on your behalf, so your provider API keys never leave your machine.
+
+<CardGroup cols={2}>
+  <Card title="OpenAI-compatible" icon="circle-check">
+    Supports `POST /v1/chat/completions` and `POST /v1/responses`, making the gateway a drop-in replacement for tools built against the OpenAI API.
+  </Card>
+  <Card title="Claude native protocol" icon="message">
+    Proxies `POST /v1/messages` and `POST /v1/messages/count_tokens` using the Anthropic Messages API so Claude Code and similar tools work without modification.
+  </Card>
+  <Card title="Gemini native protocol" icon="sparkles">
+    Exposes `GET /v1beta/models` and `POST /v1beta/models/{model_action}` so tools configured for the Gemini API route through AQBot transparently.
+  </Card>
+  <Card title="SSL/TLS support" icon="lock">
+    Run the gateway over HTTPS with a custom certificate or let AQBot generate a self-signed certificate with a single click.
+  </Card>
+  <Card title="API key management" icon="key">
+    Issue gateway-specific API keys that authenticate requests to AQBot, entirely separate from your upstream provider credentials.
+  </Card>
+  <Card title="Usage analytics" icon="chart-bar">
+    Every request is logged locally. View token usage broken down by key, provider, or date — nothing is sent externally.
+  </Card>
+</CardGroup>
+
+## Supported endpoints
+
+All endpoints except `GET /health` require a valid gateway API key in the `Authorization: Bearer` header.
+
+| Method | Path | Protocol |
+|--------|------|----------|
+| `POST` | `/v1/chat/completions` | OpenAI Chat Completions |
+| `POST` | `/v1/responses` | OpenAI Responses |
+| `POST` | `/v1/messages` | Anthropic Messages |
+| `POST` | `/v1/messages/count_tokens` | Anthropic token counting |
+| `GET` | `/v1/models` | OpenAI model list |
+| `GET` | `/v1beta/models` | Gemini model list |
+| `POST` | `/v1beta/models/{model_action}` | Gemini generate / count tokens |
+| `GET` | `/health` | Health check (unauthenticated) |
+
+The `/v1/chat/completions` endpoint accepts model names in three formats:
+
+- **Bare model ID** — `gpt-4o` (resolved automatically when globally unique across your providers)
+- **Namespaced** — `openai/gpt-4o` (preferred when the same model ID appears on multiple providers)
+- **Legacy** — `provider_id:model_id` (supported for backwards compatibility)
+
+## Configuration templates
+
+The **Quick Connect** tab in AQBot's **Gateway** page provides ready-to-use configuration snippets for popular tools. One-click connect is available for Claude Code, Cursor, and VS Code Continue, which automatically writes the gateway URL and key into the tool's config file and creates a backup of the original. A generic OpenAI-compatible template is also included for any client that supports a custom base URL.
+
+## Local-only by default
+
+The gateway binds to `127.0.0.1` by default, so it is only reachable from your own machine. You can change the listen address in **Gateway → Settings**, but you should only expose the gateway on a broader interface if you understand the security implications and have set strong API keys.

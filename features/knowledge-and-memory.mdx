@@ -1,0 +1,72 @@
+---
+title: "Knowledge base (RAG) and memory system in AQBot"
+description: "Upload documents to a local RAG knowledge base and store persistent memory entries that are retrieved and injected into your conversations automatically."
+---
+
+AQBot provides two complementary systems for giving the AI access to your own information: a **Knowledge Base** powered by retrieval-augmented generation (RAG) for document collections, and a **Memory** system for named, persistent facts and notes organized into namespaces. Both systems retrieve relevant content semantically at message-send time and inject it into the model's context automatically — no manual copying required.
+
+## Knowledge base (RAG)
+
+The knowledge base stores documents you upload, parses and chunks them, generates vector embeddings, and retrieves the most relevant passages during each conversation.
+
+### Creating a knowledge base and adding documents
+
+<Steps>
+  <Step title="Open the Knowledge Base panel">
+    Click **Knowledge Base** in the left navigation. The panel lists all your existing bases.
+  </Step>
+  <Step title="Create a new base">
+    Click **New knowledge base**, enter a name, and choose an embedding provider. The embedding provider generates the vector representations used for semantic search — you must have a provider with an embedding model configured in **Settings → Providers**.
+  </Step>
+  <Step title="Upload documents">
+    Select your new base, then click **Add document**. Choose a file from your local filesystem. AQBot accepts common document formats; the backend automatically parses the file, splits it into overlapping chunks according to the base's chunk size and overlap settings, and queues an indexing job.
+  </Step>
+  <Step title="Wait for indexing">
+    Each document shows an indexing status indicator. Once it changes to **Ready**, the document is fully embedded and available for retrieval. You can continue chatting while indexing runs in the background.
+  </Step>
+  <Step title="Enable the knowledge base in a conversation">
+    Open a conversation and click the **Knowledge Base** toggle in the context toolbar. Select one or more bases to enable. AQBot will perform a semantic search against those bases before each AI response and inject the top matching passages into the model's context.
+  </Step>
+</Steps>
+
+### Document management
+
+From the knowledge base detail view you can:
+
+- **Delete a document** — removes the document and all its vector embeddings from the index.
+- **Rebuild the index** — re-embeds all chunks for all documents in the base. Useful if you switch embedding providers or the index becomes stale.
+- **Reorder bases** — drag bases in the list to set the display order.
+
+## Memory system
+
+<AccordionGroup>
+  <Accordion title="What is a memory namespace?">
+    A namespace is a named collection of memory entries. You can create multiple namespaces to separate different topics or projects — for example, "Personal preferences", "Project Alpha context", or "Team conventions". Each namespace has its own embedding configuration and can be enabled or disabled independently per conversation.
+  </Accordion>
+  <Accordion title="Creating a namespace">
+    Go to **Memory** in the left navigation and click **New namespace**. Give it a name and optionally assign an embedding provider. If you assign an embedding provider, entries are indexed for semantic retrieval; otherwise they are stored as plain text and matched by keywords.
+  </Accordion>
+  <Accordion title="Adding memory entries manually">
+    Select a namespace and click **Add entry**. Each entry has a title and a content field. After saving, AQBot automatically generates an embedding for the entry (if the namespace has an embedding provider configured) and marks it as **Ready** when indexing completes.
+  </Accordion>
+  <Accordion title="Enabling memory in a conversation">
+    Open a conversation and click the **Memory** toggle in the context toolbar. Select one or more namespaces. AQBot will search those namespaces semantically before each reply and prepend the most relevant entries to the model's context alongside your message.
+  </Accordion>
+  <Accordion title="Auto-extraction (coming soon)">
+    Future versions of AQBot will include AI-powered automatic extraction: the model will identify facts worth remembering during a conversation and propose them as new memory entries for your review.
+  </Accordion>
+</AccordionGroup>
+
+## Context management
+
+When you send a message with knowledge bases or memory namespaces enabled, AQBot assembles context from multiple sources before calling the model:
+
+| Source | How it is attached |
+|---|---|
+| File attachments | Uploaded directly in the message input |
+| Web search results | Fetched and formatted as a search-result block (requires a search provider) |
+| Knowledge base passages | Top-K chunks retrieved by semantic similarity to your message |
+| Memory entries | Top-K entries retrieved by semantic similarity to your message |
+| Tool outputs | Injected inline by the agent or MCP tools |
+
+You can mix and match these sources freely. All retrieved content is visible in the assistant message as collapsible context blocks, so you can inspect exactly what was injected.

@@ -1,0 +1,116 @@
+---
+title: "Model Context Protocol (MCP) in AQBot"
+description: "Connect external tools to AQBot using the Model Context Protocol with stdio and HTTP transports for powerful AI-driven automation."
+---
+
+The Model Context Protocol (MCP) is an open standard that lets AI models communicate with external tools, services, and data sources through a structured message format. AQBot ships a full MCP implementation, meaning any MCP-compatible server—whether a local process or a remote HTTP endpoint—can expose its tools directly into your conversations. This gives the AI the ability to take real actions: browsing the web, running code, querying databases, reading files, and more.
+
+<Tip>
+  MCP is the fastest way to give AQBot access to databases, browsers, file systems, code interpreters, and any other capability you can wrap in a server. One server can expose dozens of tools at once.
+</Tip>
+
+## How AQBot connects to MCP servers
+
+AQBot discovers tools from each server you register and makes them available in Agent mode. When the model decides to call a tool, AQBot routes the request to the correct server, waits for a response, and feeds the result back into the conversation. Every call is shown in the **Tool Approval Panel** so you always know what the AI is doing.
+
+AQBot supports three transport modes:
+
+- **stdio** — AQBot spawns a local process (e.g. a Node or Python script) and communicates over standard input/output.
+- **HTTP** — AQBot connects to a remote server over HTTP using the MCP JSON-RPC wire format.
+- **SSE** — AQBot connects to a remote server over HTTP using Server-Sent Events for streaming responses.
+
+## Adding an MCP server
+
+<Steps>
+  <Step title="Open MCP settings">
+    Go to **Settings** → **MCP** in the AQBot sidebar.
+  </Step>
+  <Step title="Click Add server">
+    Click the **Add server** button to open the server configuration form.
+  </Step>
+  <Step title="Choose a transport and fill in the details">
+    Select either **stdio** or **HTTP** as the transport type, then provide the required fields for that transport (see the configuration examples below).
+  </Step>
+  <Step title="Save and discover tools">
+    Click **Save**. AQBot will attempt to connect to the server and discover its available tools. A green status indicator confirms the connection is healthy.
+  </Step>
+  <Step title="Enable the server in a conversation">
+    Start or open a conversation in **Agent** mode. The tools from your registered MCP servers are available automatically. You can review and approve each tool call in the **Tool Approval Panel** as the model uses them.
+  </Step>
+</Steps>
+
+## Transport configuration
+
+<Tabs>
+  <Tab title="stdio">
+    Use `stdio` when your MCP server runs as a local process. AQBot launches the command you specify and communicates with it over stdin/stdout.
+
+    ```json
+    {
+      "transport": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/Users/you/Documents"]
+    }
+    ```
+
+    | Field | Description |
+    |-------|-------------|
+    | `command` | The executable to run (e.g. `npx`, `python`, `node`). |
+    | `args` | An array of arguments passed to the command. |
+    | `env` | Optional key-value pairs to set in the subprocess environment. |
+
+    The process is managed by AQBot for the lifetime of the session. If the process exits unexpectedly, AQBot marks the server as disconnected.
+  </Tab>
+  <Tab title="HTTP">
+    Use `HTTP` when your MCP server is running at a reachable URL. AQBot sends JSON-RPC requests to the endpoint you specify.
+
+    ```json
+    {
+      "transport": "http",
+      "endpoint": "http://localhost:8080/mcp"
+    }
+    ```
+
+    | Field | Description |
+    |-------|-------------|
+    | `endpoint` | The full URL of the MCP server, including path. |
+
+    The server must be running and reachable before you save the configuration. AQBot will time out the discovery request after 30 seconds by default.
+  </Tab>
+  <Tab title="SSE">
+    Use `SSE` when your MCP server streams responses over Server-Sent Events. The configuration is identical to HTTP but uses an SSE-compatible endpoint.
+
+    ```json
+    {
+      "transport": "sse",
+      "endpoint": "http://localhost:8080/sse"
+    }
+    ```
+
+    | Field | Description |
+    |-------|-------------|
+    | `endpoint` | The full URL of the SSE endpoint exposed by your MCP server. |
+  </Tab>
+</Tabs>
+
+## Tool approval panel
+
+Every time the model calls a tool, AQBot displays a **Tool Approval Panel** inline in the conversation. The panel shows:
+
+- The name of the tool being called and which MCP server provides it.
+- The full input arguments the model is passing to the tool.
+- The result or error returned by the server after execution.
+
+You can configure the approval behavior per conversation using one of three permission levels:
+
+| Level | Behavior |
+|-------|----------|
+| **Default** | File writes and destructive operations require manual approval; reads are automatic. |
+| **Accept Edits** | File changes are approved automatically; other operations still require confirmation. |
+| **Full Access** | All tool calls execute without prompting. |
+
+You can also click **Always allow** on an individual tool to permanently whitelist it for future calls without interrupting the workflow.
+
+## Testing a server connection
+
+After adding a server, use the **Test** button in the MCP settings panel to verify connectivity. AQBot pings the server and reports its declared capabilities. If the test fails, check that the command or endpoint is correct and that any required environment variables are set.
